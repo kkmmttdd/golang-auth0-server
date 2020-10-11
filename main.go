@@ -33,7 +33,7 @@ func main() {
 	r.GET("/hoge", func(c *gin.Context) {
 		c.Writer.Header().Set("Content-Type", "application/json")
 		c.JSON(200, gin.H{
-			"You Id": c.Keys["authInfo"].(middleware.AuthInfo).Subject,
+			"You are login as ": c.Keys["authInfo"].(middleware.AuthInfo).Subject,
 		})
 		if c.Errors != nil {
 			fmt.Println(c.Errors)

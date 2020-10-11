@@ -21,7 +21,7 @@ func TestMiddleware(t *testing.T) {
 		t.Errorf("type assertion failed")
 	}
 	if authInfo.Subject != config.EnvConf.Subject {
-		t.Errorf("subject name mismatch")
+		t.Errorf("subject name mismatch \n subject from token is %s but from config is %s", authInfo.Subject, config.EnvConf.Subject)
 	}
 	return
 }
