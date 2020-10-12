@@ -29,21 +29,19 @@ type Jwks struct {
 }
 
 
-func HandleFunc() func(*gin.Context) {
-  return func(ctx *gin.Context) {
-  	token, err := parseTokenFromRequest(ctx)
-  	if err != nil {
+func HandleFunc(ctx *gin.Context) {
+	token, err := parseTokenFromRequest(ctx)
+	if err != nil {
 		_ = ctx.AbortWithError(http.StatusForbidden, fmt.Errorf("error parsing token from request [%w]", err))
 	}
-  	authInfo, err := ValidateToken(token)
-  	if err != nil {
-  		_ = ctx.AbortWithError(http.StatusForbidden, fmt.Errorf("error validating token [%w]", err))
-  	}
-  	keys := ctx.Keys
-  	if keys == nil { keys = make(map[string]interface{}) }
+	authInfo, err := ValidateToken(token)
+	if err != nil {
+		_ = ctx.AbortWithError(http.StatusForbidden, fmt.Errorf("error validating token [%w]", err))
+	}
+	keys := ctx.Keys
+	if keys == nil { keys = make(map[string]interface{}) }
 	keys["authInfo"] = authInfo
 	ctx.Keys = keys
-  }
 }
 
 func parseTokenFromRequest(ctx *gin.Context) (token string, err error) {

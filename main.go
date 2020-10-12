@@ -29,7 +29,7 @@ func main() {
 			"http://localhost:3000",
 		},
 	}))
-	r.Use(middleware.HandleFunc())
+	r.Use(middleware.HandleFunc)
 	r.GET("/hoge", func(c *gin.Context) {
 		c.Writer.Header().Set("Content-Type", "application/json")
 		c.JSON(200, gin.H{
