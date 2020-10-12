@@ -112,7 +112,7 @@ func ValidateToken(tokenStr string) (authInfo AuthInfo, err error) {
 		azp: config.EnvConf.Azp,
 	}
 	// parse token from string
-	parser := jwt.Parser{SkipClaimsValidation: true}
+	parser := jwt.Parser{SkipClaimsValidation: true, ValidMethods: []string{config.EnvConf.Alg}}
 	token, err = parser.ParseWithClaims(tokenStr, customClaims.MapClaims, getPublicKeyPem)
 	if err != nil { err = fmt.Errorf("err when parsing [%w]", err); return }
 	// check if token is valid
