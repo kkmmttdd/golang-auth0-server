@@ -28,6 +28,33 @@ type Jwks struct {
 	Keys []Jwk `json:"keys"`
 }
 
+type CustomClaims struct {
+	jwt.MapClaims
+	issuer string
+	audience string
+	azp string
+}
+
+func (cc CustomClaims) CustomValid() error {
+	var valid bool
+	err := cc.MapClaims.Valid()
+	if err != nil {
+		return fmt.Errorf("default claim retuned erorr [%w]", err)
+	}
+	valid = cc.MapClaims.VerifyAudience(cc.audience, true)
+	if valid != true {
+		return fmt.Errorf("invalid audience")
+	}
+	valid = cc.MapClaims.VerifyIssuer(cc.issuer, true)
+	if valid != true {
+		return fmt.Errorf("invalid issuer")
+	}
+	if cc.azp != cc.MapClaims["azp"] {
+		return fmt.Errorf("invalid azp")
+	}
+	return nil
+}
+
 
 func HandleFunc(ctx *gin.Context) {
 	token, err := parseTokenFromRequest(ctx)
@@ -78,10 +105,22 @@ func getPublicKeyPem(token *jwt.Token) (interface{}, error) {
 
 func ValidateToken(tokenStr string) (authInfo AuthInfo, err error) {
 	var token *jwt.Token
-	token, err = jwt.Parse(tokenStr, getPublicKeyPem)
+	customClaims := CustomClaims{
+		MapClaims: jwt.MapClaims{},
+		issuer: config.EnvConf.Issuer,
+		audience: config.EnvConf.Audience,
+		azp: config.EnvConf.Azp,
+	}
+	// parse token from string
+	parser := jwt.Parser{SkipClaimsValidation: true}
+	token, err = parser.ParseWithClaims(tokenStr, customClaims.MapClaims, getPublicKeyPem)
 	if err != nil { err = fmt.Errorf("err when parsing [%w]", err); return }
-	if !token.Valid { err = fmt.Errorf("err when validating [%w]", err); return }
+	// check if token is valid
+	if token.Valid != true { err = fmt.Errorf("err when validating [%w]", err); return }
+	// check is claims are valid
+	err = customClaims.CustomValid()
+	if err != nil { err = fmt.Errorf("err when validating customClaims [%w]", err); return}
 	payload := token.Claims.(jwt.MapClaims)
-	authInfo.Subject =  payload["sub"].(string)
+	authInfo.Subject = payload["sub"].(string)
 	return
 }

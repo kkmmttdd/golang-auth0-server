@@ -10,6 +10,9 @@ type EnvConfig struct {
 	ValidToken string `required:"true"`
 	Subject string `required:"true"`
 	APIDomain string `required:"true"`
+	Audience string `required:"true"`
+	Issuer string `required:"true"`
+	Azp string `required:"true"`
 	//User string `default:"waaaay"`
 }
 
