@@ -59,11 +59,11 @@ func (cc CustomClaims) CustomValid() error {
 func HandleFunc(ctx *gin.Context) {
 	token, err := parseTokenFromRequest(ctx)
 	if err != nil {
-		_ = ctx.AbortWithError(http.StatusForbidden, fmt.Errorf("error parsing token from request [%w]", err))
+		ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": fmt.Errorf("error happened when parsing token from request [%w]", err).Error()})
 	}
 	authInfo, err := ValidateToken(token)
 	if err != nil {
-		_ = ctx.AbortWithError(http.StatusForbidden, fmt.Errorf("error validating token [%w]", err))
+		ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": fmt.Errorf("validation failed [%w]", err).Error()})
 	}
 	keys := ctx.Keys
 	if keys == nil { keys = make(map[string]interface{}) }
@@ -72,7 +72,6 @@ func HandleFunc(ctx *gin.Context) {
 }
 
 func parseTokenFromRequest(ctx *gin.Context) (token string, err error) {
-	//token = jwt.Token{}
 	tokenStr := ctx.Request.Header.Get("Authorization")
 	splitted := strings.Split(tokenStr, " ")
 	if len(splitted) != 2 || strings.ToLower(splitted[0]) != "bearer" {
