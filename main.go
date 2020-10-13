@@ -30,7 +30,7 @@ func main() {
 		},
 	}))
 	r.Use(middleware.HandleFunc)
-	r.GET("/hoge", func(c *gin.Context) {
+	r.GET("/profile", func(c *gin.Context) {
 		c.Writer.Header().Set("Content-Type", "application/json")
 		c.JSON(200, gin.H{
 			"You are login as ": c.Keys["authInfo"].(middleware.AuthInfo).Subject,
